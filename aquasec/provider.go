@@ -76,6 +76,7 @@ func Provider(v string) *schema.Provider {
 			"aquasec_container_runtime_policy":    resourceContainerRuntimePolicy(),
 			"aquasec_function_runtime_policy":     resourceFunctionRuntimePolicy(),
 			"aquasec_host_runtime_policy":         resourceHostRuntimePolicy(),
+			"aquasec_host_runtime_policy_json":    resourceHostRuntimePolicyJson(),
 			"aquasec_host_assurance_policy":       resourceHostAssurancePolicy(),
 			"aquasec_image_assurance_policy":      resourceImageAssurancePolicy(),
 			"aquasec_image_assurance_policy_json": resourceImageAssurancePolicyJson(),
