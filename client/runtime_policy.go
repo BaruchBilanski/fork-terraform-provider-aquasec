@@ -86,6 +86,68 @@ type RuntimePolicy struct {
 	VpatchVersion                string                       `json:"vpatch_version"`
 	VulnID                       int                          `json:"vuln_id"`
 	WhitelistedOsUsers           WhitelistedOsUsers           `json:"whitelisted_os_users"`
+	//JSON ADDED
+	Registries                       interface{}         `json:"registries"`
+	PackagesBlackList                []ListPackages      `json:"packages_black_list"`
+	PackagesWhiteList                []ListPackages      `json:"packages_white_list"`
+	TrustedBaseImages                []BaseImagesTrusted `json:"trusted_base_images"`
+	ReadOnly                         bool                `json:"read_only"`
+	AutoScanTime                     ScanTimeAuto        `json:"auto_scan_time"`
+	AutoScanEnabled                  bool                `json:"auto_scan_enabled"`
+	AutoScanConfigured               bool                `json:"auto_scan_configured"`
+	FunctionIntegrityEnabled         bool                `json:"function_integrity_enabled"`
+	BlacklistPermissionsEnabled      bool                `json:"blacklist_permissions_enabled"`
+	BlacklistPermissions             []interface{}       `json:"blacklist_permissions"`
+	ForceMicroenforcer               bool                `json:"force_microenforcer"`
+	DockerCisEnabled                 bool                `json:"docker_cis_enabled"`
+	KubeCisEnabled                   bool                `json:"kube_cis_enabled"`
+	EnforceExcessivePermissions      bool                `json:"enforce_excessive_permissions"`
+	ForbiddenLabelsEnabled           bool                `json:"forbidden_labels_enabled"`
+	ForbiddenLabels                  []Labels            `json:"forbidden_labels"`
+	KubenetesControlsNames           []string            `json:"kubernetes_controls_names"`
+	RequiredLabelsEnabled            bool                `json:"required_labels_enabled"`
+	RequiredLabels                   []Labels            `json:"required_labels"`
+	ScanNfsMounts                    bool                `json:"scan_nfs_mounts"`
+	MalwareAction                    string              `json:"malware_action"`
+	ExceptionalMonitoredMalwarePaths []interface{}       `json:"exceptional_monitored_malware_paths"`
+	MonitoredMalwarePaths            []interface{}       `json:"monitored_malware_paths"`
+	DisallowMalware                  bool                `json:"disallow_malware"`
+	DtaEnabled                       bool                `json:"dta_enabled"`
+	DtaSeverity                      string              `json:"dta_severity"`
+	IgnoredRiskResources             []string            `json:"ignored_risk_resources"`
+	IgnoreRiskResourcesEnabled       bool                `json:"ignore_risk_resources_enabled"`
+	IgnoreRecentlyPublishedVln       bool                `json:"ignore_recently_published_vln"`
+	IgnoreRecentlyPublishedVlnPeriod int                 `json:"ignore_recently_published_vln_period"`
+	ControlExcludeNoFix              bool                `json:"control_exclude_no_fix"`
+	PartialResultsImageFail          bool                `json:"partial_results_image_fail"`
+	CvesWhiteList                    []string            `json:"cves_white_list"`
+	TrustedBaseImagesEnabled         bool                `json:"trusted_base_images_enabled"`
+	AllowedImages                    interface{}         `json:"allowed_images"`
+	PackagesBlackListEnabled         bool                `json:"packages_black_list_enabled"`
+	PackagesWhiteListEnabled         bool                `json:"packages_white_list_enabled"`
+	CvesBlackList                    []string            `json:"cves_black_list"`
+	Images                           interface{}         `json:"images"`
+	Labels                           interface{}         `json:"labels"`
+	ScapFiles                        []interface{}       `json:"scap_files"`
+	CustomChecks                     []Checks            `json:"custom_checks"`
+	BlacklistedLicensesEnabled       bool                `json:"blacklisted_licenses_enabled"`
+	BlacklistedLicenses              []string            `json:"blacklisted_licenses"`
+	WhitelistedLicensesEnabled       bool                `json:"whitelisted_licenses_enabled"`
+	WhitelistedLicenses              []string            `json:"whitelisted_licenses"`
+	ScanSensitiveData                bool                `json:"scan_sensitive_data"`
+	OnlyNoneRootUsers                bool                `json:"only_none_root_users"`
+	CvssSeverityEnabled              bool                `json:"cvss_severity_enabled"`
+	CvesWhiteListEnabled             bool                `json:"cves_white_list_enabled"`
+	CvesBlackListEnabled             bool                `json:"cves_black_list_enabled"`
+	ScapEnabled                      bool                `json:"scap_enabled"`
+	CustomChecksEnabled              bool                `json:"custom_checks_enabled"`
+	MaximumScoreExcludeNoFix         bool                `json:"maximum_score_exclude_no_fix"`
+	MaximumScoreEnabled              bool                `json:"maximum_score_enabled"`
+	MaximumScore                     float64             `json:"maximum_score"`
+	CvssSeverityExcludeNoFix         bool                `json:"cvss_severity_exclude_no_fix"`
+	CvssSeverity                     string              `json:"cvss_severity"`
+	CustomSeverityEnabled            bool                `json:"custom_severity_enabled"`
+	AssuranceType                    string              `json:"assurance_type"`
 }
 
 type AllowedExecutables struct {
