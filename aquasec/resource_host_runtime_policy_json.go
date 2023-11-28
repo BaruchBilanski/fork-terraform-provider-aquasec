@@ -2061,5 +2061,10 @@ func expandHostRuntimePolicyJson(d *schema.ResourceData) *client.RuntimePolicy {
 		crp.CustomSeverityEnabled = custom_severity_enabled.(bool)
 	}
 
+	assurance_type, ok := d.GetOk("assurance_type")
+	if ok {
+		crp.AssuranceType = assurance_type.(string)
+	}
+
 	return &crp
 }

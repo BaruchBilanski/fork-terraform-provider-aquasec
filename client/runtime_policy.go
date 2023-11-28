@@ -412,6 +412,7 @@ func (cli *Client) UpdateRuntimePolicy(runtimePolicy *RuntimePolicy) error {
 		return err
 	}
 	resp, _, errs := request.Clone().Set("Authorization", "Bearer "+cli.token).Put(cli.url + apiPath).Send(string(payload)).End()
+	log.Println(string(payload))
 	if errs != nil {
 		return errors.Wrap(getMergedError(errs), "failed modifying runtime policy")
 	}
