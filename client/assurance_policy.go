@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"log"
 	"strings"
-	"time"
-
-	"github.com/pkg/errors"
 )
 
 type AssurancePolicy struct {
@@ -18,7 +16,7 @@ type AssurancePolicy struct {
 	Name                             string              `json:"name"`
 	Author                           string              `json:"author"`
 	Registry                         string              `json:"registry"`
-	Lastupdate                       time.Time           `json:"lastupdate"`
+	Lastupdate                       string              `json:"lastupdate"`
 	CvssSeverityEnabled              bool                `json:"cvss_severity_enabled"`
 	CvssSeverity                     string              `json:"cvss_severity"`
 	CvssSeverityExcludeNoFix         bool                `json:"cvss_severity_exclude_no_fix"`
@@ -90,6 +88,22 @@ type AssurancePolicy struct {
 	PartialResultsImageFail          bool                `json:"partial_results_image_fail"`
 	MaximumScoreExcludeNoFix         bool                `json:"maximum_score_exclude_no_fix"`
 	KubenetesControlsNames           []string            `json:"kubernetes_controls_names"`
+	//JSON
+	CustomSeverity              string         `json:"custom_severity"`
+	VulnerabilityExploitability bool           `json:"vulnerability_exploitability"`
+	DisallowExploitTypes        []string       `json:"disallow_exploit_types"`
+	IgnoreBaseImageVln          bool           `json:"ignore_base_image_vln"`
+	IgnoredSensitiveResources   []string       `json:"ignored_sensitive_resources"`
+	Permission                  string         `json:"permission"`
+	ScanMalwareInArchives       bool           `json:"scan_malware_in_archives"`
+	KubernetesControls          []string       `json:"kubernetes_controls"`
+	KubernetesControlsNames     []string       `json:"kubernetes_controls_names"`
+	ScanWindowsRegistry         bool           `json:"scan_windows_registry"`
+	ScanProcessMemory           bool           `json:"scan_process_memory"`
+	PolicySettings              PolicySettings `json:"policy_settings"`
+	ExcludeApplicationScopes    []string       `json:"exclude_application_scopes"`
+	LinuxCisEnabled             bool           `json:"linux_cis_enabled"`
+	OpenshiftHardeningEnabled   bool           `json:"openshift_hardening_enabled"`
 }
 
 type Checks struct {
@@ -143,6 +157,15 @@ type ScanTimeAuto struct {
 	Time          string        `json:"time"`
 	Iteration     int           `json:"iteration"`
 	WeekDays      []interface{} `json:"week_days"`
+}
+
+//JSON Test
+
+type PolicySettings struct {
+	Enforce        bool   `json:"enforce"`
+	Warn           bool   `json:"warn"`
+	WarningMessage string `json:"warning_message"`
+	IsAuditChecked bool   `json:"is_audit_checked"`
 }
 
 // GetAssurancePolicy - returns single  Assurance Policy
