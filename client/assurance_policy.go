@@ -104,6 +104,8 @@ type AssurancePolicy struct {
 	ExcludeApplicationScopes    []string       `json:"exclude_application_scopes"`
 	LinuxCisEnabled             bool           `json:"linux_cis_enabled"`
 	OpenshiftHardeningEnabled   bool           `json:"openshift_hardening_enabled"`
+	KubernetesControlsAvdIds    []string       `json:"kubernetes_controls_avd_ids"`
+	VulnerabilityScoreRange     []int          `json:"vulnerability_score_range"`
 }
 
 type Checks struct {

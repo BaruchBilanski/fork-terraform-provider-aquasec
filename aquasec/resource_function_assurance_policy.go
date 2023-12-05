@@ -888,6 +888,7 @@ func resourceFunctionAssurancePolicy() *schema.Resource {
 				Description: "",
 				Optional:    true,
 			}, //bool
+
 		},
 	}
 }
@@ -982,8 +983,8 @@ func resourceFunctionAssurancePolicyUpdate(d *schema.ResourceData, m interface{}
 		"dta_severity",
 		"scan_nfs_mounts",
 		"malware_action",
-		"partial_results_image_fail", ""+
-			"maximum_score_exclude_no_fix",
+		"partial_results_image_fail",
+		"maximum_score_exclude_no_fix",
 		//JSOT Test
 		//"author",
 		"lastupdate",
@@ -1033,7 +1034,7 @@ func resourceFunctionAssurancePolicyRead(d *schema.ResourceData, m interface{}) 
 		return err
 	}
 
-	//d.Set("assurance_type", iap.AssuranceType)
+	d.Set("assurance_type", iap.AssuranceType)
 	d.Set("name", iap.Name)
 	d.Set("description", iap.Description)
 	//d.Set("author", iap.Author)
