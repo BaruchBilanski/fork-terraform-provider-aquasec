@@ -15,7 +15,7 @@ type AssurancePolicy struct {
 	Id                               int                 `json:"id"`
 	Name                             string              `json:"name"`
 	Author                           string              `json:"author"`
-	Registry                         string              `json:"registry"`
+	Registry                         string              `json:"registry,omitempty"`
 	Lastupdate                       string              `json:"lastupdate"`
 	CvssSeverityEnabled              bool                `json:"cvss_severity_enabled"`
 	CvssSeverity                     string              `json:"cvss_severity"`
@@ -64,9 +64,9 @@ type AssurancePolicy struct {
 	CvesWhiteListEnabled             bool                `json:"cves_white_list_enabled"`
 	BlacklistPermissionsEnabled      bool                `json:"blacklist_permissions_enabled"`
 	BlacklistPermissions             []interface{}       `json:"blacklist_permissions"`
-	Enabled                          bool                `json:"enabled"`
-	Enforce                          bool                `json:"enforce"`
-	EnforceAfterDays                 int                 `json:"enforce_after_days"`
+	Enabled                          bool                `json:"enabled,omitempty"`
+	Enforce                          bool                `json:"enforce,omitempty"`
+	EnforceAfterDays                 int                 `json:"enforce_after_days,omitempty"`
 	IgnoreRecentlyPublishedVln       bool                `json:"ignore_recently_published_vln"`
 	IgnoreRecentlyPublishedVlnPeriod int                 `json:"ignore_recently_published_vln_period"`
 	IgnoreRiskResourcesEnabled       bool                `json:"ignore_risk_resources_enabled"`
@@ -79,8 +79,8 @@ type AssurancePolicy struct {
 	RequiredLabels                   []Labels            `json:"required_labels"`
 	ForbiddenLabelsEnabled           bool                `json:"forbidden_labels_enabled"`
 	ForbiddenLabels                  []Labels            `json:"forbidden_labels"`
-	DomainName                       string              `json:"domain_name"`
-	Domain                           string              `json:"domain"`
+	DomainName                       string              `json:"domain_name,omitempty"`
+	Domain                           string              `json:"domain,omitempty"`
 	Description                      string              `json:"description"`
 	DtaSeverity                      string              `json:"dta_severity"`
 	ScanNfsMounts                    bool                `json:"scan_nfs_mounts"`
@@ -240,6 +240,7 @@ func (cli *Client) CreateAssurancePolicy(assurancepolicy *AssurancePolicy, at st
 	if err != nil {
 		return err
 	}
+	log.Println(string(payload))
 	resp, _, errs := request.Clone().Set("Authorization", "Bearer "+cli.token).Post(cli.url + apiPath).Send(string(payload)).End()
 	if errs != nil {
 		return errors.Wrap(getMergedError(errs), "failed creating  Assurance Policy.")
