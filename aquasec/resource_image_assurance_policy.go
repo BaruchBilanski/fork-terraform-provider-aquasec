@@ -734,40 +734,54 @@ func resourceImageAssurancePolicy() *schema.Resource {
 				Optional:    true,
 			}, //bool
 			"kubernetes_controls": {
-				Type:        schema.TypeList,
-				Description: "Allowed executables configuration.",
+				Type:        schema.TypeSet,
+				Description: "List of Kubernetes controls.",
 				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"script_id": {
+							Type:        schema.TypeInt,
+							Description: "",
+							Optional:    true,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
 						"enabled": {
 							Type:        schema.TypeBool,
-							Description: "Whether allowed executables configuration is enabled.",
+							Description: "",
 							Optional:    true,
 						},
-						"allow_executables": {
-							Type:        schema.TypeList,
-							Description: "List of allowed executables.",
+						"severity": {
+							Type:        schema.TypeString,
+							Description: "",
 							Optional:    true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
 						},
-						"separate_executables": {
+						"kind": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"ootb": {
 							Type:        schema.TypeBool,
-							Description: "Whether to treat executables separately.",
+							Description: "",
 							Optional:    true,
 						},
-						"allow_root_executables": {
-							Type:        schema.TypeList,
-							Description: "List of allowed root executables.",
+						"avd_id": {
+							Type:        schema.TypeString,
+							Description: "",
 							Optional:    true,
-							Elem: &schema.Schema{
-								Type: schema.TypeString,
-							},
 						},
 					},
 				},
-			}, // list
+			},
 			"kubernetes_controls_names": {
 				Type:        schema.TypeList,
 				Description: "Allowed executables configuration.",
@@ -983,8 +997,8 @@ func resourceImageAssurancePolicyUpdate(d *schema.ResourceData, m interface{}) e
 		"dta_severity",
 		"scan_nfs_mounts",
 		"malware_action",
-		"partial_results_image_fail", ""+
-			"maximum_score_exclude_no_fix",
+		"partial_results_image_fail",
+		"maximum_score_exclude_no_fix",
 		//JSOT Test
 		//"author",
 		"lastupdate",
@@ -1246,6 +1260,23 @@ func flattenPolicySettings(PolicySettings client.PolicySettings) []map[string]in
 			"warn":             PolicySettings.Warn,
 			"warning_message":  PolicySettings.WarningMessage,
 			"is_audit_checked": PolicySettings.IsAuditChecked,
+		},
+	}
+}
+
+func flattenKubernetesControls(KubernetesControls client.KubernetesControls) map[string]interface{} {
+	return map[string]interface{}{
+		"kubernetes_controls": []interface{}{
+			map[string]interface{}{
+				"avd_id":      KubernetesControls.AvdID,
+				"description": KubernetesControls.Description,
+				"enabled":     KubernetesControls.Enabled,
+				"kind":        KubernetesControls.Kind,
+				"name":        KubernetesControls.Name,
+				"ootb":        KubernetesControls.OOTB,
+				"script_id":   KubernetesControls.ScriptID,
+				"severity":    KubernetesControls.Severity,
+			},
 		},
 	}
 }
@@ -1787,10 +1818,23 @@ func expandAssurancePolicy(d *schema.ResourceData, a_type string) *client.Assura
 		iap.ScanMalwareInArchives = scan_malware_in_archives.(bool)
 	}
 
-	kubernetes_controls, ok := d.GetOk("kubernetes_controls")
+	iap.KubernetesControls = client.KubernetesControls{}
+	kubernetesControlsSet, ok := d.GetOk("kubernetes_controls")
 	if ok {
-		strArr := convertStringArr(kubernetes_controls.([]interface{}))
-		iap.KubernetesControls = strArr
+		controlsList := kubernetesControlsSet.(*schema.Set).List()
+		if len(controlsList) > 0 {
+			v := controlsList[0].(map[string]interface{})
+			iap.KubernetesControls = client.KubernetesControls{
+				ScriptID:    v["script_id"].(int),
+				Name:        v["name"].(string),
+				Description: v["description"].(string),
+				Enabled:     v["enabled"].(bool),
+				Severity:    v["severity"].(string),
+				Kind:        v["kind"].(string),
+				OOTB:        v["ootb"].(bool),
+				AvdID:       v["avd_id"].(string),
+			}
+		}
 	}
 
 	scan_windows_registry, ok := d.GetOk("scan_windows_registry")

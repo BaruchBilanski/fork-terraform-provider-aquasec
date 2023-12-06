@@ -17,14 +17,13 @@ func resourceKubernetesAssurancePolicy() *schema.Resource {
 			StateContext: schema.ImportStatePassthroughContext,
 		},
 		Schema: map[string]*schema.Schema{
-			/*
-				"assurance_type": {
-					Type:        schema.TypeString,
-					Description: "What type of assurance policy is described.",
-					Optional:    true,
-					Computed:    true,
-				},
-			*/
+
+			"assurance_type": {
+				Type:        schema.TypeString,
+				Description: "What type of assurance policy is described.",
+				Optional:    true,
+				Computed:    true,
+			},
 			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -38,6 +37,7 @@ func resourceKubernetesAssurancePolicy() *schema.Resource {
 				Type:        schema.TypeString,
 				Description: "Name of user account that created the policy.",
 				Computed:    true,
+				Optional:    true,
 			},
 			"registry": {
 				Type:     schema.TypeString,
@@ -119,6 +119,12 @@ func resourceKubernetesAssurancePolicy() *schema.Resource {
 			"audit_on_failure": {
 				Type:        schema.TypeBool,
 				Description: "Indicates if auditing for failures.",
+				Optional:    true,
+				Default:     true,
+			},
+			"fail_cicd": {
+				Type:        schema.TypeBool,
+				Description: "Indicates if cicd failures will fail the image.",
 				Optional:    true,
 				Default:     true,
 			},
@@ -495,6 +501,7 @@ func resourceKubernetesAssurancePolicy() *schema.Resource {
 			"ignore_recently_published_vln_period": {
 				Type:     schema.TypeInt,
 				Computed: true,
+				Optional: true,
 			},
 			"ignore_risk_resources_enabled": {
 				Type:        schema.TypeBool,
@@ -628,6 +635,189 @@ func resourceKubernetesAssurancePolicy() *schema.Resource {
 				Description: "Indicates that policy should ignore cases that do not have a known fix.",
 				Optional:    true,
 			},
+			//JSON Test
+			"lastupdate": {
+				Type:        schema.TypeString,
+				Description: "",
+				Optional:    true,
+				Computed:    true,
+			}, // String
+			"custom_severity": {
+				Type:        schema.TypeString,
+				Description: "",
+				Optional:    true,
+				Computed:    true,
+			}, // string
+			"vulnerability_exploitability": {
+				Type:        schema.TypeBool,
+				Description: "",
+				Optional:    true,
+			}, //bool
+			"disallow_exploit_types": {
+				Type:        schema.TypeList,
+				Description: "",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			}, // list
+			"ignore_base_image_vln": {
+				Type:        schema.TypeBool,
+				Description: "",
+				Optional:    true,
+			}, //bool
+			"ignored_sensitive_resources": {
+				Type:        schema.TypeList,
+				Description: "",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			}, // list
+			"permission": {
+				Type:        schema.TypeString,
+				Description: "",
+				Optional:    true,
+				Computed:    true,
+			}, // string
+			"scan_malware_in_archives": {
+				Type:        schema.TypeBool,
+				Description: "",
+				Optional:    true,
+			}, //bool
+			"kubernetes_controls": {
+				Type:        schema.TypeSet,
+				Description: "List of Kubernetes controls.",
+				Optional:    true,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"script_id": {
+							Type:        schema.TypeInt,
+							Description: "",
+							Optional:    true,
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"description": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"enabled": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+						},
+						"severity": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"kind": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"ootb": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+						},
+						"avd_id": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+					},
+				},
+			},
+			"scan_windows_registry": {
+				Type:        schema.TypeBool,
+				Description: "",
+				Optional:    true,
+			}, //bool
+			"scan_process_memory": {
+				Type:        schema.TypeBool,
+				Description: "",
+				Optional:    true,
+			}, //bool
+			"policy_settings": {
+				Type:        schema.TypeList,
+				MaxItems:    1,
+				Description: "",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enforce": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+						},
+						"warn": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+						},
+						"warning_message": {
+							Type:        schema.TypeString,
+							Description: "",
+							Optional:    true,
+						},
+						"is_audit_checked": {
+							Type:        schema.TypeBool,
+							Description: "",
+							Optional:    true,
+						},
+					},
+				},
+				Optional: true,
+			}, // list
+			"exclude_application_scopes": {
+				Type:        schema.TypeList,
+				Description: "",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			}, // list
+			"linux_cis_enabled": {
+				Type:        schema.TypeBool,
+				Description: "",
+				Optional:    true,
+			}, //bool
+			"openshift_hardening_enabled": {
+				Type:        schema.TypeBool,
+				Description: "",
+				Optional:    true,
+			}, //bool
+			"vulnerability_score_range": {
+				Type:        schema.TypeList,
+				Description: "",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+			}, // list
+			"kubernetes_controls_avd_ids": {
+				Type:        schema.TypeList,
+				Description: "",
+				Optional:    true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			}, // list
+
+			//"aggregated_vulnerability": {
+			//	Type:        schema.TypeString,
+			//	Optional:    true,
+			//	Description: "List of aggregated vulnerabilities",
+			//	//Elem: &schema.Schema{
+			//	//	Type: schema.TypeString,
+			//	//},
+			//}, // list
 		},
 	}
 }
@@ -765,6 +955,23 @@ func resourceKubernetesAssurancePolicyRead(d *schema.ResourceData, m interface{}
 	d.Set("malware_action", iap.MalwareAction)
 	d.Set("partial_results_image_fail", iap.PartialResultsImageFail)
 	d.Set("maximum_score_exclude_no_fix", iap.MaximumScoreExcludeNoFix)
+	//JSON Test
+	//d.Set("lastupdate", iap.Lastupdate)
+	d.Set("custom_severity", iap.CustomSeverity)
+	d.Set("vulnerability_exploitability", iap.VulnerabilityExploitability)
+	d.Set("disallow_exploit_types", iap.DisallowExploitTypes)
+	d.Set("ignore_base_image_vln", iap.IgnoreBaseImageVln)
+	d.Set("ignored_sensitive_resources", iap.IgnoredSensitiveResources)
+	d.Set("permission", iap.Permission)
+	d.Set("scan_malware_in_archives", iap.ScanMalwareInArchives)
+	d.Set("kubernetes_controls", flattenKubernetesControls(iap.KubernetesControls))
+	d.Set("kubernetes_controls_names", iap.KubernetesControlsNames)
+	d.Set("scan_windows_registry", iap.ScanWindowsRegistry)
+	d.Set("scan_process_memory", iap.ScanProcessMemory)
+	d.Set("policy_settings", flattenPolicySettings(iap.PolicySettings))
+	d.Set("exclude_application_scopes", iap.ExcludeApplicationScopes)
+	d.Set("linux_cis_enabled", iap.LinuxCisEnabled)
+	d.Set("openshift_hardening_enabled", iap.OpenshiftHardeningEnabled)
 
 	return nil
 }
