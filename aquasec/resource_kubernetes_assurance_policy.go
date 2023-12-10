@@ -686,7 +686,7 @@ func resourceKubernetesAssurancePolicy() *schema.Resource {
 				Optional:    true,
 			}, //bool
 			"kubernetes_controls": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Description: "List of Kubernetes controls.",
 				Optional:    true,
 				MaxItems:    1,
@@ -965,7 +965,6 @@ func resourceKubernetesAssurancePolicyRead(d *schema.ResourceData, m interface{}
 	d.Set("permission", iap.Permission)
 	d.Set("scan_malware_in_archives", iap.ScanMalwareInArchives)
 	d.Set("kubernetes_controls", flattenKubernetesControls(iap.KubernetesControls))
-	d.Set("kubernetes_controls_names", iap.KubernetesControlsNames)
 	d.Set("scan_windows_registry", iap.ScanWindowsRegistry)
 	d.Set("scan_process_memory", iap.ScanProcessMemory)
 	d.Set("policy_settings", flattenPolicySettings(iap.PolicySettings))

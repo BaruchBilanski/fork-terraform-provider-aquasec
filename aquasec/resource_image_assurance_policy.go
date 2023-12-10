@@ -1264,18 +1264,24 @@ func flattenPolicySettings(PolicySettings client.PolicySettings) []map[string]in
 	}
 }
 
-func flattenKubernetesControls(KubernetesControls client.KubernetesControls) map[string]interface{} {
+func flattenKubernetesControls(kubernetesControls client.KubernetesControlsArray) map[string]interface{} {
+	if len(kubernetesControls) == 0 {
+		return map[string]interface{}{}
+	}
+
+	kubernetesControl := kubernetesControls[0]
+
 	return map[string]interface{}{
-		"kubernetes_controls": []interface{}{
-			map[string]interface{}{
-				"avd_id":      KubernetesControls.AvdID,
-				"description": KubernetesControls.Description,
-				"enabled":     KubernetesControls.Enabled,
-				"kind":        KubernetesControls.Kind,
-				"name":        KubernetesControls.Name,
-				"ootb":        KubernetesControls.OOTB,
-				"script_id":   KubernetesControls.ScriptID,
-				"severity":    KubernetesControls.Severity,
+		"kubernetes_controls": []map[string]interface{}{
+			{
+				"script_id":   kubernetesControl.ScriptID,
+				"name":        kubernetesControl.Name,
+				"description": kubernetesControl.Description,
+				"enabled":     kubernetesControl.Enabled,
+				"severity":    kubernetesControl.Severity,
+				"kind":        kubernetesControl.Kind,
+				"ootb":        kubernetesControl.OOTB,
+				"avd_id":      kubernetesControl.AvdID,
 			},
 		},
 	}
@@ -1818,13 +1824,13 @@ func expandAssurancePolicy(d *schema.ResourceData, a_type string) *client.Assura
 		iap.ScanMalwareInArchives = scan_malware_in_archives.(bool)
 	}
 
-	iap.KubernetesControls = client.KubernetesControls{}
+	iap.KubernetesControls = make(client.KubernetesControlsArray, 0)
 	kubernetesControlsSet, ok := d.GetOk("kubernetes_controls")
 	if ok {
 		controlsList := kubernetesControlsSet.(*schema.Set).List()
 		if len(controlsList) > 0 {
 			v := controlsList[0].(map[string]interface{})
-			iap.KubernetesControls = client.KubernetesControls{
+			iap.KubernetesControls = append(iap.KubernetesControls, client.KubernetesControls{
 				ScriptID:    v["script_id"].(int),
 				Name:        v["name"].(string),
 				Description: v["description"].(string),
@@ -1833,7 +1839,7 @@ func expandAssurancePolicy(d *schema.ResourceData, a_type string) *client.Assura
 				Kind:        v["kind"].(string),
 				OOTB:        v["ootb"].(bool),
 				AvdID:       v["avd_id"].(string),
-			}
+			})
 		}
 	}
 

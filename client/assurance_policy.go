@@ -89,23 +89,23 @@ type AssurancePolicy struct {
 	MaximumScoreExcludeNoFix         bool                `json:"maximum_score_exclude_no_fix"`
 	KubenetesControlsNames           []string            `json:"kubernetes_controls_names"`
 	//JSON
-	CustomSeverity              string             `json:"custom_severity"`
-	VulnerabilityExploitability bool               `json:"vulnerability_exploitability"`
-	DisallowExploitTypes        []string           `json:"disallow_exploit_types"`
-	IgnoreBaseImageVln          bool               `json:"ignore_base_image_vln"`
-	IgnoredSensitiveResources   []string           `json:"ignored_sensitive_resources"`
-	Permission                  string             `json:"permission"`
-	ScanMalwareInArchives       bool               `json:"scan_malware_in_archives"`
-	KubernetesControls          KubernetesControls `json:"kubernetes_controls"`
-	KubernetesControlsNames     []string           `json:"kubernetes_controls_names"`
-	ScanWindowsRegistry         bool               `json:"scan_windows_registry"`
-	ScanProcessMemory           bool               `json:"scan_process_memory"`
-	PolicySettings              PolicySettings     `json:"policy_settings"`
-	ExcludeApplicationScopes    []string           `json:"exclude_application_scopes"`
-	LinuxCisEnabled             bool               `json:"linux_cis_enabled"`
-	OpenshiftHardeningEnabled   bool               `json:"openshift_hardening_enabled"`
-	KubernetesControlsAvdIds    []string           `json:"kubernetes_controls_avd_ids"`
-	VulnerabilityScoreRange     []int              `json:"vulnerability_score_range"`
+	CustomSeverity              string                  `json:"custom_severity"`
+	VulnerabilityExploitability bool                    `json:"vulnerability_exploitability"`
+	DisallowExploitTypes        []string                `json:"disallow_exploit_types"`
+	IgnoreBaseImageVln          bool                    `json:"ignore_base_image_vln"`
+	IgnoredSensitiveResources   []string                `json:"ignored_sensitive_resources"`
+	Permission                  string                  `json:"permission"`
+	ScanMalwareInArchives       bool                    `json:"scan_malware_in_archives"`
+	KubernetesControls          KubernetesControlsArray `json:"kubernetes_controls"`
+	KubernetesControlsNames     []string                `json:"kubernetes_controls_names"`
+	ScanWindowsRegistry         bool                    `json:"scan_windows_registry"`
+	ScanProcessMemory           bool                    `json:"scan_process_memory"`
+	PolicySettings              PolicySettings          `json:"policy_settings"`
+	ExcludeApplicationScopes    []string                `json:"exclude_application_scopes"`
+	LinuxCisEnabled             bool                    `json:"linux_cis_enabled"`
+	OpenshiftHardeningEnabled   bool                    `json:"openshift_hardening_enabled"`
+	KubernetesControlsAvdIds    []string                `json:"kubernetes_controls_avd_ids"`
+	VulnerabilityScoreRange     []int                   `json:"vulnerability_score_range"`
 }
 
 type Checks struct {
@@ -180,6 +180,8 @@ type KubernetesControls struct {
 	OOTB        bool   `json:"ootb"`
 	AvdID       string `json:"avd_id"`
 }
+
+type KubernetesControlsArray []KubernetesControls
 
 // GetAssurancePolicy - returns single  Assurance Policy
 func (cli *Client) GetAssurancePolicy(name string, at string) (*AssurancePolicy, error) {
