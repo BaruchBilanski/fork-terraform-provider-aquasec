@@ -196,7 +196,10 @@ func (cli *Client) GetAssurancePolicy(name string, at string) (*AssurancePolicy,
 		atype = "function"
 	} else if strings.EqualFold(at, "kubernetes") {
 		atype = "kubernetes"
+	} else if strings.EqualFold(at, "cf_application") {
+		atype = "cf_application"
 	}
+
 	apiPath := "/api/v2/assurance_policy/" + atype + "/" + name
 	err = cli.limiter.Wait(context.Background())
 	if err != nil {
@@ -245,7 +248,10 @@ func (cli *Client) CreateAssurancePolicy(assurancepolicy *AssurancePolicy, at st
 		atype = "function"
 	} else if strings.EqualFold(at, "kubernetes") {
 		atype = "kubernetes"
+	} else if strings.EqualFold(at, "cf_application") {
+		atype = "cf_application"
 	}
+
 	apiPath := "/api/v2/assurance_policy/" + atype
 	if err != nil {
 		return err
@@ -292,6 +298,8 @@ func (cli *Client) UpdateAssurancePolicy(assurancepolicy *AssurancePolicy, at st
 		atype = "function"
 	} else if strings.EqualFold(at, "kubernetes") {
 		atype = "kubernetes"
+	} else if strings.EqualFold(at, "cf_application") {
+		atype = "cf_application"
 	}
 	apiPath := "/api/v2/assurance_policy/" + atype + "/" + assurancepolicy.Name
 	request := cli.gorequest
@@ -332,6 +340,8 @@ func (cli *Client) DeleteAssurancePolicy(name string, at string) error {
 		atype = "function"
 	} else if strings.EqualFold(at, "kubernetes") {
 		atype = "kubernetes"
+	} else if strings.EqualFold(at, "cf_application") {
+		atype = "cf_application"
 	}
 	apiPath := "/api/v2/assurance_policy/" + atype + "/" + name
 	err := cli.limiter.Wait(context.Background())
