@@ -16,7 +16,7 @@ type AssurancePolicy struct {
 	Name                             string              `json:"name"`
 	Author                           string              `json:"author"`
 	Registry                         string              `json:"registry,omitempty"`
-	Lastupdate                       string              `json:"lastupdate"`
+	Lastupdate                       string              `json:"lastupdate,omitempty"`
 	CvssSeverityEnabled              bool                `json:"cvss_severity_enabled"`
 	CvssSeverity                     string              `json:"cvss_severity"`
 	CvssSeverityExcludeNoFix         bool                `json:"cvss_severity_exclude_no_fix"`
@@ -100,7 +100,7 @@ type AssurancePolicy struct {
 	KubernetesControlsNames     []string                `json:"kubernetes_controls_names"`
 	ScanWindowsRegistry         bool                    `json:"scan_windows_registry"`
 	ScanProcessMemory           bool                    `json:"scan_process_memory"`
-	PolicySettings              PolicySettings          `json:"policy_settings"`
+	PolicySettings              PolicySettings          `json:"policy_settings,omitempty"`
 	ExcludeApplicationScopes    []string                `json:"exclude_application_scopes"`
 	LinuxCisEnabled             bool                    `json:"linux_cis_enabled"`
 	OpenshiftHardeningEnabled   bool                    `json:"openshift_hardening_enabled"`
@@ -261,7 +261,6 @@ func (cli *Client) CreateAssurancePolicy(assurancepolicy *AssurancePolicy, at st
 	if err != nil {
 		return err
 	}
-	log.Println(string(payload))
 	resp, _, errs := request.Clone().Set("Authorization", "Bearer "+cli.token).Post(cli.url + apiPath).Send(string(payload)).End()
 	if errs != nil {
 		return errors.Wrap(getMergedError(errs), "failed creating  Assurance Policy.")
