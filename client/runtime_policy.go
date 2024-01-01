@@ -308,7 +308,6 @@ func (cli *Client) CreateRuntimePolicy(runtimePolicy *RuntimePolicy) error {
 	if err != nil {
 		return err
 	}
-	log.Println(string(payload))
 	resp, body, errs := request.Clone().Set("Authorization", "Bearer "+cli.token).Post(cli.url + apiPath).Send(string(payload)).End()
 	if errs != nil {
 		return errors.Wrap(getMergedError(errs), "failed creating runtime policy.")
