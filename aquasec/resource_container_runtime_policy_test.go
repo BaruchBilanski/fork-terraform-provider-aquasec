@@ -115,6 +115,8 @@ func TestResourceAquasecComplexContainerRuntimePolicyCreate(t *testing.T) {
 					//resource.TestCheckResourceAttr(rootRef, "enable_drift_prevention", "true"),
 					resource.TestCheckResourceAttr(rootRef, "allowed_executables.0.allow_executables.#", "2"),
 					resource.TestCheckResourceAttr(rootRef, "allowed_executables.0.enabled", "true"),
+					resource.TestCheckResourceAttr(rootRef, "executable_blacklist.0.executables.#", "2"),
+					resource.TestCheckResourceAttr(rootRef, "executable_blacklist.0.enabled", "true"),
 
 					//resource.TestCheckResourceAttr(rootRef, "blocked_executables.#", "2"),
 					resource.TestCheckResourceAttr(rootRef, "file_block.0.enabled", "true"),
@@ -223,6 +225,10 @@ func getComplexContainerRuntimePolicyResource(policy client.RuntimePolicy) strin
 		#block_unregistered_images     = true
 		#enable_ip_reputation_security = true
 		# enable_drift_prevention       = true
+		executable_blacklist {
+			enabled = true
+			executables = ["exxe","biin"]
+	    }
 		allowed_executables {
 			enabled = true
 			allow_executables = ["exe","bin"]

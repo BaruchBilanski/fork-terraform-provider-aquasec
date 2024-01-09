@@ -162,14 +162,14 @@ func resourceContainerRuntimePolicy() *schema.Resource {
 			//	Description: "If true, running images in the container that are not registered in Aqua is prevented.",
 			//	Optional:    true,
 			//},
-			"blocked_capabilities": {
-				Type:        schema.TypeList,
-				Description: "If true, prevents containers from using specific Unix capabilities.",
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Optional: true,
-			},
+			//"blocked_capabilities": {
+			//	Type:        schema.TypeList,
+			//	Description: "If true, prevents containers from using specific Unix capabilities.",
+			//	Elem: &schema.Schema{
+			//		Type: schema.TypeString,
+			//	},
+			//	Optional: true,
+			//},
 			//"enable_ip_reputation_security": {
 			//	Type:        schema.TypeBool,
 			//	Description: "If true, detect and prevent communication from containers to IP addresses known to have a bad reputation.",
@@ -1655,12 +1655,12 @@ func resourceContainerRuntimePolicyRead(ctx context.Context, d *schema.ResourceD
 	//d.Set("reverse_shell_allowed_processes", crp.ReverseShell.ReverseShellProcWhiteList)
 	//d.Set("reverse_shell_allowed_ips", crp.ReverseShell.ReverseShellIpWhiteList)
 	//d.Set("block_unregistered_images", crp.OnlyRegisteredImages)
-	d.Set("blocked_capabilities", crp.LinuxCapabilities.RemoveLinuxCapabilities)
+	//d.Set("blocked_capabilities", crp.LinuxCapabilities.RemoveLinuxCapabilities)
 	//d.Set("enable_ip_reputation_security", crp.EnableIPReputation)
 	//d.Set("enable_drift_prevention", crp.DriftPrevention.Enabled && crp.DriftPrevention.ExecLockdown)
 	//d.Set("exec_lockdown_white_list", crp.DriftPrevention.ExecLockdownWhiteList)
 	//d.Set("allowed_executables", crp.AllowedExecutables.AllowExecutables)
-	d.Set("blocked_executables", crp.ExecutableBlacklist.Executables)
+	//d.Set("blocked_executables", crp.ExecutableBlacklist.Executables)
 	//d.Set("blocked_files", crp.FileBlock.FilenameBlockList)
 	d.Set("file_integrity_monitoring", flattenFileIntegrityMonitoring(crp.FileIntegrityMonitoring))
 	//d.Set("audit_all_processes_activity", crp.Auditing.AuditAllProcesses)
@@ -1771,12 +1771,12 @@ func resourceContainerRuntimePolicyUpdate(ctx context.Context, d *schema.Resourc
 		//"reverse_shell_allowed_processes",
 		//"reverse_shell_allowed_ips",
 		//"block_unregistered_images",
-		"blocked_capabilities",
+		//"blocked_capabilities",
 		//"enable_ip_reputation_security",
 		//"enable_drift_prevention",
 		//"exec_lockdown_white_list",
 		//"allowed_executables",
-		"blocked_executables",
+		//"blocked_executables",
 		//"blocked_files",
 		"file_integrity_monitoring",
 		"audit_all_processes_activity",
@@ -2008,11 +2008,11 @@ func expandContainerRuntimePolicy(d *schema.ResourceData) *client.RuntimePolicy 
 	//	crp.OnlyRegisteredImages = blockUnregisteredImage.(bool)
 	//}
 
-	blockedCap, ok := d.GetOk("blocked_capabilities")
-	if ok {
-		crp.LinuxCapabilities.Enabled = true
-		crp.LinuxCapabilities.RemoveLinuxCapabilities = convertStringArr(blockedCap.([]interface{}))
-	}
+	//blockedCap, ok := d.GetOk("blocked_capabilities")
+	//if ok {
+	//	crp.LinuxCapabilities.Enabled = true
+	//	crp.LinuxCapabilities.RemoveLinuxCapabilities = convertStringArr(blockedCap.([]interface{}))
+	//}
 
 	//enableIpReputation, ok := d.GetOk("enable_ip_reputation_security")
 	//if ok {
@@ -2029,14 +2029,14 @@ func expandContainerRuntimePolicy(d *schema.ResourceData) *client.RuntimePolicy 
 	//	}
 	//}
 
-	blockedExecutables, ok := d.GetOk("blocked_executables")
-	if ok {
-		strArr := convertStringArr(blockedExecutables.([]interface{}))
-		crp.ExecutableBlacklist.Enabled = len(strArr) != 0
-		crp.ExecutableBlacklist.Executables = strArr
-	} else {
-		crp.ExecutableBlacklist.Enabled = false
-	}
+	//blockedExecutables, ok := d.GetOk("blocked_executables")
+	//if ok {
+	//	strArr := convertStringArr(blockedExecutables.([]interface{}))
+	//	crp.ExecutableBlacklist.Enabled = len(strArr) != 0
+	//	crp.ExecutableBlacklist.Executables = strArr
+	//} else {
+	//	crp.ExecutableBlacklist.Enabled = false
+	//}
 
 	blockedFiles, ok := d.GetOk("blocked_files")
 	if ok {

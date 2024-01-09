@@ -179,11 +179,11 @@ type WhitelistedOsUsers struct {
 type FileBlock struct {
 	Enabled                        bool     `json:"enabled"`
 	FilenameBlockList              []string `json:"filename_block_list"`
-	ExceptionalBlockFiles          []string `json:"exceptional_block_files"`
-	BlockFilesUsers                []string `json:"block_files_users"`
-	BlockFilesProcesses            []string `json:"block_files_processes"`
-	ExceptionalBlockFilesUsers     []string `json:"exceptional_block_files_users"`
-	ExceptionalBlockFilesProcesses []string `json:"exceptional_block_files_processes"`
+	ExceptionalBlockFiles          []string `json:"exceptional_block_files,omitempty"`
+	BlockFilesUsers                []string `json:"block_files_users,omitempty"`
+	BlockFilesProcesses            []string `json:"block_files_processes,omitempty"`
+	ExceptionalBlockFilesUsers     []string `json:"exceptional_block_files_users,omitempty"`
+	ExceptionalBlockFilesProcesses []string `json:"exceptional_block_files_processes,omitempty"`
 }
 
 type PackageBlock struct {
@@ -290,7 +290,7 @@ type ReverseShell struct {
 	Enabled                   bool     `json:"enabled"`
 	BlockReverseShell         bool     `json:"block_reverse_shell"`
 	ReverseShellProcWhiteList []string `json:"reverse_shell_proc_white_list"`
-	ReverseShellIpWhiteList   []string `json:"reverse_shell_ip_white_list"`
+	ReverseShellIpWhiteList   []string `json:"reverse_shell_ip_white_list,omitempty"`
 }
 
 // JSON
