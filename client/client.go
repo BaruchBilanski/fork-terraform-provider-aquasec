@@ -1,6 +1,9 @@
 package client
 
 import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -11,6 +14,8 @@ import (
 	"golang.org/x/time/rate"
 	"log"
 	neturl "net/url"
+	"strconv"
+	"time"
 )
 
 // Client - API client
@@ -161,37 +166,118 @@ func (cli *Client) GetUSEAuthToken() (string, string, error) {
 		return "", "", fmt.Errorf(fmt.Sprintf("%v URL is not allowed USE url", cli.url))
 	}
 
-	resp, body, errs := cli.gorequest.Post(cli.tokenUrl + "/v2/signin").
-		Send(`{"email":"` + cli.user + `", "password":"` + cli.password + `"}`).End()
-	if errs != nil {
-		return "", "", getMergedError(errs)
-	}
-
-	if resp.StatusCode == 200 {
-		var raw map[string]interface{}
-		_ = json.Unmarshal([]byte(body), &raw)
-		data := raw["data"].(map[string]interface{})
-		cli.token = data["token"].(string)
-		//get the ese_url to make the API requests.
-		request := cli.gorequest
-		request.Set("Authorization", "Bearer "+cli.token)
-		events, body, errs := request.Clone().Get(provUrl + "/v1/envs").End()
+	if cli.user != "" && cli.password != "" {
+		resp, body, errs := gorequest.New().Post(cli.tokenUrl + "/v2/signin").
+			Send(`{"email":"` + cli.user + `", "password":"` + cli.password + `"}`).
+			End()
 
 		if errs != nil {
-			log.Println(events.StatusCode)
-			err := fmt.Errorf("error calling %s", provUrl)
-			return "", "", err
+			return "", "", getMergedError(errs)
 		}
 
-		if events.StatusCode == 200 {
+		if resp.StatusCode == 200 {
 			var raw map[string]interface{}
 			_ = json.Unmarshal([]byte(body), &raw)
 			data := raw["data"].(map[string]interface{})
-			cli.url = "https://" + data["ese_url"].(string)
-		}
+			cli.token = data["token"].(string)
 
-		return cli.token, cli.url, nil
+			// Get the ese_url to make the API requests.
+			request := gorequest.New()
+			request.Set("Authorization", "Bearer "+cli.token)
+
+			events, body, errs := request.Clone().Get(provUrl + "/v1/envs").End()
+
+			if errs != nil {
+				log.Println(events.StatusCode)
+				err := fmt.Errorf("error calling %s", provUrl)
+				return "", "", err
+			}
+
+			if events.StatusCode == 200 {
+				var raw map[string]interface{}
+				_ = json.Unmarshal([]byte(body), &raw)
+				data := raw["data"].(map[string]interface{})
+				cli.url = "https://" + data["ese_url"].(string)
+			}
+
+			return cli.token, cli.url, nil
+		}
+		return "", "", fmt.Errorf("request failed. status: %s, response: %s", resp.Status, body)
 	}
 
-	return "", "", fmt.Errorf("request failed. status: %s, response: %s", resp.Status, body)
+	if cli.api_key != "" && cli.api_secret != "" {
+		fmt.Println("trying api auth")
+		// Request body
+		tokenCreationData := map[string]interface{}{
+			"allowed_endpoints": []string{"DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "ANY"},
+		}
+
+		// Convert the request body to a JSON string
+		tokenCreationDataJSON, err := json.Marshal(tokenCreationData)
+		if err != nil {
+			fmt.Errorf("%s", err)
+			return "", "", err
+		}
+		// Generate timestamp
+		timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+
+		// Create signature
+		stringToSign := timestamp + "POST" + "/v2/tokens" + string(tokenCreationDataJSON)
+		stringToSign = fmt.Sprintf("%s", bytes.ReplaceAll([]byte(stringToSign), []byte(" "), []byte("")))
+
+		fmt.Println("String to sign %s", stringToSign)
+		fmt.Println("Token URL %s", cli.tokenUrl)
+		hash := hmac.New(sha256.New, []byte(cli.api_secret))
+		hash.Write([]byte(stringToSign))
+		signature := fmt.Sprintf("%x", hash.Sum(nil))
+		///
+		// Make API request using gorequest
+		fmt.Println("Sending Request-DEBUG")
+		request := gorequest.New().Post(cli.tokenUrl+"/v2/tokens").
+			Send(tokenCreationData).
+			Set("X-API-Key", cli.api_key).
+			Set("X-Signature", signature).
+			Set("X-Timestamp", timestamp).
+			Set("Content-Type", "application/json")
+		// Log request details
+		fmt.Println("Request URL:", request.Url)
+		fmt.Println("Request Method:", request.Method)
+		fmt.Println("Request Headers:", request.Header)
+		fmt.Println("Request Body:", string(tokenCreationDataJSON)) // Log JSON request body
+
+		// Perform the API request
+		resp, body, errs := request.End()
+		if errs != nil {
+			err := fmt.Errorf("%s", errs)
+			return "", "", err
+		}
+
+		if resp.StatusCode == 200 {
+			fmt.Println("trying api auth66")
+			var raw map[string]interface{}
+			_ = json.Unmarshal([]byte(body), &raw)
+
+			// Get the ese_url to make the API requests.
+			request := gorequest.New()
+			request.Set("Authorization", "Bearer "+cli.token)
+
+			events, body, errs := request.Clone().Get(provUrl + "/v1/envs").End()
+
+			if errs != nil {
+				log.Println(events.StatusCode)
+				err := fmt.Errorf("error calling %s", provUrl)
+				return "", "", err
+			}
+
+			if events.StatusCode == 200 {
+				var raw map[string]interface{}
+				_ = json.Unmarshal([]byte(body), &raw)
+				data := raw["data"].(map[string]interface{})
+				cli.url = "https://" + data["ese_url"].(string)
+			}
+			return cli.token, cli.url, nil
+		}
+	}
+
+	return "", "", fmt.Errorf("internal error: couldn't get token")
 }
