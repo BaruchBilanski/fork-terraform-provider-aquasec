@@ -16,9 +16,11 @@ import (
 
 // Config - godoc
 type Config struct {
-	Username string `json:"tenant"`
-	Password string `json:"token"`
-	AquaURL  string `json:"aqua_url"`
+	Username  string `json:"tenant,omitempty"`
+	Password  string `json:"token,omitempty"`
+	AquaURL   string `json:"aqua_url"`
+	ApiKey    string `json:"api_key,omitempty"`
+	ApiSecret string `json:"api_secret,omitempty"`
 }
 
 // Provider -
@@ -62,6 +64,20 @@ func Provider(v string) *schema.Provider {
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("AQUA_CONFIG", "~/.aquasec/tf.config"),
 				Description: "This is the file path for Aqua provider configuration. The default configuration path is `~/.aqua/tf.config`. Can alternatively be sourced from the `AQUA_CONFIG` environment variable.",
+			},
+			"api_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc("AQUA_API_KEY", nil),
+				Description: "",
+			},
+			"api_secret": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				DefaultFunc: schema.EnvDefaultFunc("AQUA_API_SECRET", nil),
+				Description: "",
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
@@ -126,23 +142,23 @@ func Provider(v string) *schema.Provider {
 	}
 }
 
-func getProviderConfigurationFromFile(d *schema.ResourceData) (string, string, string, error) {
+func getProviderConfigurationFromFile(d *schema.ResourceData) (string, string, string, string, string, error) {
 	log.Print("[DEBUG] Trying to load configuration from file")
 	if configPath, ok := d.GetOk("config_path"); ok && configPath.(string) != "" {
 		path, err := homedir.Expand(configPath.(string))
 		if err != nil {
 			log.Printf("[DEBUG] Failed to expand config file path %s, error %s", configPath, err)
-			return "", "", "", nil
+			return "", "", "", "", "", nil
 		}
 		if _, err := os.Stat(path); os.IsNotExist(err) {
 			log.Printf("[DEBUG] Terraform config file %s does not exist, error %s", path, err)
-			return "", "", "", nil
+			return "", "", "", "", "", nil
 		}
 		log.Printf("[DEBUG] Terraform configuration file is: %s", path)
 		configFile, err := os.Open(path)
 		if err != nil {
 			log.Printf("[DEBUG] Unable to open Terraform configuration file %s", path)
-			return "", "", "", fmt.Errorf("Unable to open terraform configuration file. Error %v", err)
+			return "", "", "", "", "", fmt.Errorf("Unable to open terraform configuration file. Error %v", err)
 		}
 		defer configFile.Close()
 
@@ -151,11 +167,11 @@ func getProviderConfigurationFromFile(d *schema.ResourceData) (string, string, s
 		err = json.Unmarshal(configBytes, &config)
 		if err != nil {
 			log.Printf("[DEBUG] Failed to parse config file %s", path)
-			return "", "", "", fmt.Errorf("Invalid terraform configuration file format. Error %v", err)
+			return "", "", "", "", "", fmt.Errorf("Invalid terraform configuration file format. Error %v", err)
 		}
-		return config.Username, config.Password, config.AquaURL, nil
+		return config.Username, config.Password, config.AquaURL, config.ApiKey, config.ApiSecret, nil
 	}
-	return "", "", "", nil
+	return "", "", "", "", "", nil
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
@@ -168,25 +184,27 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	aquaURL := d.Get("aqua_url").(string)
 	verifyTLS := d.Get("verify_tls").(bool)
 	caCertPath := d.Get("ca_certificate_path").(string)
+	apiKey := d.Get("api_key").(string)
+	apiSecret := d.Get("api_secret").(string)
 
-	if username == "" && password == "" && aquaURL == "" {
-		username, password, aquaURL, err = getProviderConfigurationFromFile(d)
+	if username == "" && password == "" && aquaURL == "" && apiKey == "" && apiSecret == "" {
+		username, password, aquaURL, apiKey, apiSecret, err = getProviderConfigurationFromFile(d)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}
 	}
 
-	if username == "" {
+	if (username != "" && apiKey != "") || (apiKey == "" && username == "") {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Initializing provider, username parameter is missing.",
+			Summary:  "Initializing provider, use username & password / api_key & api_secret",
 		})
 	}
 
-	if password == "" {
+	if (password == "" && apiSecret == "") || (password != "" && apiSecret != "") {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  "Initializing provider, password parameter is missing.",
+			Summary:  "Initializing provider, use username & password / api_key & api_secret",
 		})
 	}
 
@@ -215,7 +233,7 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 		return nil, diags
 	}
 
-	aquaClient := client.NewClient(aquaURL, username, password, verifyTLS, caCertByte)
+	aquaClient := client.NewClient(aquaURL, username, password, apiKey, apiSecret, verifyTLS, caCertByte)
 
 	token, tokenPresent := os.LookupEnv("TESTING_AUTH_TOKEN")
 

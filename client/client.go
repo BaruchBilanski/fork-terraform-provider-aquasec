@@ -24,6 +24,8 @@ type Client struct {
 	gorequest  *gorequest.SuperAgent
 	clientType string
 	limiter    *rate.Limiter
+	api_key    string
+	api_secret string
 }
 
 const Csp string = "csp"
@@ -31,7 +33,7 @@ const Saas = "saas"
 const SaasDev = "saasDev"
 
 // NewClient - initialize and return the Client
-func NewClient(url, user, password string, verifyTLS bool, caCertByte []byte) *Client {
+func NewClient(url, user, password string, apiKey string, apiSecret string, verifyTLS bool, caCertByte []byte) *Client {
 	tlsConfig := &tls.Config{
 		InsecureSkipVerify: !verifyTLS,
 	}
@@ -48,10 +50,12 @@ func NewClient(url, user, password string, verifyTLS bool, caCertByte []byte) *C
 	}
 
 	c := &Client{
-		url:       url,
-		user:      user,
-		password:  password,
-		gorequest: gorequest.New().TLSClientConfig(tlsConfig),
+		url:        url,
+		user:       user,
+		password:   password,
+		api_key:    apiKey,
+		api_secret: apiSecret,
+		gorequest:  gorequest.New().TLSClientConfig(tlsConfig),
 		// we are setting rate limit for 10 connection per second
 		limiter: rate.NewLimiter(10, 3),
 	}
