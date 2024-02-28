@@ -180,11 +180,9 @@ func (cli *Client) GetUSEAuthToken() (string, string, error) {
 			_ = json.Unmarshal([]byte(body), &raw)
 			data := raw["data"].(map[string]interface{})
 			cli.token = data["token"].(string)
-
-			// Get the ese_url to make the API requests.
-			request := gorequest.New()
+			//get the ese_url to make the API requests.
+			request := cli.gorequest
 			request.Set("Authorization", "Bearer "+cli.token)
-
 			events, body, errs := request.Clone().Get(provUrl + "/v1/envs").End()
 
 			if errs != nil {
@@ -202,11 +200,9 @@ func (cli *Client) GetUSEAuthToken() (string, string, error) {
 
 			return cli.token, cli.url, nil
 		}
-		return "", "", fmt.Errorf("request failed. status: %s, response: %s", resp.Status, body)
 	}
 
 	if cli.api_key != "" && cli.api_secret != "" {
-		fmt.Println("trying api auth")
 		// Request body
 		tokenCreationData := map[string]interface{}{
 			"allowed_endpoints": []string{"DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "ANY"},
@@ -225,25 +221,17 @@ func (cli *Client) GetUSEAuthToken() (string, string, error) {
 		stringToSign := timestamp + "POST" + "/v2/tokens" + string(tokenCreationDataJSON)
 		stringToSign = fmt.Sprintf("%s", bytes.ReplaceAll([]byte(stringToSign), []byte(" "), []byte("")))
 
-		fmt.Println("String to sign %s", stringToSign)
-		fmt.Println("Token URL %s", cli.tokenUrl)
 		hash := hmac.New(sha256.New, []byte(cli.api_secret))
 		hash.Write([]byte(stringToSign))
 		signature := fmt.Sprintf("%x", hash.Sum(nil))
 		///
 		// Make API request using gorequest
-		fmt.Println("Sending Request-DEBUG")
 		request := gorequest.New().Post(cli.tokenUrl+"/v2/tokens").
 			Send(tokenCreationData).
 			Set("X-API-Key", cli.api_key).
 			Set("X-Signature", signature).
 			Set("X-Timestamp", timestamp).
 			Set("Content-Type", "application/json")
-		// Log request details
-		fmt.Println("Request URL:", request.Url)
-		fmt.Println("Request Method:", request.Method)
-		fmt.Println("Request Headers:", request.Header)
-		fmt.Println("Request Body:", string(tokenCreationDataJSON)) // Log JSON request body
 
 		// Perform the API request
 		resp, body, errs := request.End()
@@ -254,8 +242,25 @@ func (cli *Client) GetUSEAuthToken() (string, string, error) {
 
 		if resp.StatusCode == 200 {
 			fmt.Println("trying api auth66")
-			var raw map[string]interface{}
-			_ = json.Unmarshal([]byte(body), &raw)
+
+			// Struct to capture the JSON response
+			var jsonResponse struct {
+				Status int    `json:"status"`
+				Code   int    `json:"code"`
+				Data   string `json:"data"`
+			}
+
+			// Unmarshal the JSON response
+			if err := json.Unmarshal([]byte(body), &jsonResponse); err != nil {
+				fmt.Println("Error unmarshaling JSON:", err)
+				return "", "", err
+			}
+
+			// Accessing the token from the JSON response
+			token := jsonResponse.Data
+
+			// Set the token in cli
+			cli.token = token
 
 			// Get the ese_url to make the API requests.
 			request := gorequest.New()
